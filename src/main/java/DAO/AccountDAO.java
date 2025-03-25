@@ -8,6 +8,7 @@ import Util.ConnectionUtil;
 public class AccountDAO {
     // methods needed for project problems
     // 1. insertUser, usernameAlreadyExists
+    // 2. getUserByLogin
 
     /**
      * Inserts a new user account in the Account table
@@ -47,9 +48,42 @@ public class AccountDAO {
     }
 
     /**
+     * Gets a user by searching for their login credentials within the Account table
+     * @param acc - Account object containing login credentials (username and password) to be searched for
+     * @return A fully populated Account object (has its account_id) if matching credentials were found. otherwise returns null
+     */
+    public Account getUserByLogin(Account acc) {
+        // attempts to establish a connection with the database
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            // searches the Account table for an entry matching the provided login credentials (username and password)
+            String query = "SELECT * FROM account WHERE username = ? AND password = ?";
+
+            // setting up a prepared statement and its parameters
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, acc.getUsername());
+            ps.setString(2, acc.getPassword());
+
+            // executes the prepared query and stores the results (if any) in matchingUser
+            // matchingUser will either contain a single entry or be empty since usernames are unique
+            ResultSet matchingUser = ps.executeQuery();
+            if (matchingUser.next()) {
+                // if a match was found, returns a fully populated Account object using ResultSet methods
+                return new Account(matchingUser.getInt("account_id"), matchingUser.getString("username"), matchingUser.getString("password"));
+            }
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return null;
+    }
+
+    /**
      * Checks if a username is already in use within the Account table
      * @param username - the username to be checked
-     * @return - true if a matching username was found, false if it wasn't
+     * @return true if a matching username was found, false if it wasn't
      */
     public boolean usernameAlreadyExists(String username) {
         // defaults usernameExists to false before executing the query

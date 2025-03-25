@@ -32,4 +32,13 @@ public class AccountService {
 
         return null;
     }
+
+    /**
+     * Logs in a user account, provided that they've already registered an account and provided the correct login credentials
+     * @param userAcc - an Account object containing (potential) login credentials (username and password)
+     * @return A fully populated Account object (has its account_id) if the given login credentials matched an existing account. otherwise returns null
+     */
+    public Account loginUserAccount(Account userAcc) {
+        return this.accountDAO.getUserByLogin(userAcc);
+    }
 }
