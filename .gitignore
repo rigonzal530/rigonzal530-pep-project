@@ -7,3 +7,5 @@ restructured_labs/
 .revature/tmp
 .vscode
 .idea/
+src/main/java/Example
+install-extensions.sh
