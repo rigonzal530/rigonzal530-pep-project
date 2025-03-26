@@ -46,11 +46,11 @@ public class SocialMediaController {
         // done: GET endpoint "messages"
         app.get("/messages", this::retrieveAllMessagesHandler);
 
-        // TODO: GET endpoint "messages/{message_id}"
+        // done: GET endpoint "messages/{message_id}"
         app.get("/messages/{message_id}", this::retrieveMessageByIdHandler);
 
-        // TODO: DELETE endpoint "messages/{message_id}"
-        // app.delete("/messages/{message_id}", null);
+        // done: DELETE endpoint "messages/{message_id}"
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
 
         // TODO: PATCH endpoint "messages/{message_id}"
         // app.patch("/messages/{message_id}", null);
@@ -71,12 +71,11 @@ public class SocialMediaController {
 
     /**
      * Handler to register a new user account.
-     * When successfully registered within the database, returns a JSON representation of the newly inserted Account with status code 200
-     * If something went wrong with registration, returns status code 400
      * 
      * ObjectMapper is used to convert the JSON from the request body into an Account object
      * @param ctx - automatically provided by Javalin in order to handle HTTP requests and create HTTP responses
      * @throws JsonProcessingException thrown if there is an issue converting JSON into an Account object
+     * @apiNote When successfully registered within the database, returns a JSON representation of the newly inserted Account with status code 200
      */
     private void registrationHandler(Context ctx) throws JsonProcessingException {
         // iniializes object mapper to convert the request's body JSON into an Account object
@@ -103,13 +102,12 @@ public class SocialMediaController {
 
     /**
      * Handler to attempt logging in a user account.
-     * Upon successful login, returns a JSON containing the user Account's full details (account_id, username, password).
-     * If the login credentials were incorrect or didn't match an existing user, returns status code 401 (unauthorized).
-     * 
      * In the future, this action may generate a Session token to allow the user to securely use the site
      * 
      * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
      * @throws JsonProcessingException thrown if there is an issue converting JSON into an Account object
+     * @apiNote Upon successful login, returns a JSON containing the user Account's full details (account_id, username, password).
+     * @apiNote If the login credentials were incorrect or didn't match an existing user, returns status code 401 (unauthorized).
      */
     private void loginHandler(Context ctx) throws JsonProcessingException {
         // iniializes object mapper to convert the request's body JSON into an Account object
@@ -137,11 +135,10 @@ public class SocialMediaController {
     /**
      * Handler to attempt creating a new message.
      * 
-     * Upon successful message creation, returns a JSON containing all the Message's information (message_id, posted_by, message_text, time_posted_epoch).
-     * If a new message's requirements weren't met or there was an issue creating it, returns status code 400 (client error).
-     * 
      * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
      * @throws JsonProcessingException thrown if there is an issue converting JSON into an Account object
+     * @apiNote Upon successful message creation, returns a JSON containing all the Message's information (message_id, posted_by, message_text, time_posted_epoch)
+     * @apiNote If a new message's requirements weren't met or there was an issue creating it, returns status code 400 (client error).
      */
     private void createMessageHandler(Context ctx) throws JsonProcessingException {
         // iniializes object mapper to convert the request's body JSON into a Message object
@@ -167,9 +164,9 @@ public class SocialMediaController {
 
     /**
      * Handler to retrieve all messages contained within the Message table.
-     * Always returns a JSON representation of a list containing all messages, even if it's empty
      * 
      * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
+     * @apiNote Always returns a JSON representation of a list containing all messages, even if it's empty
      */
     private void retrieveAllMessagesHandler(Context ctx) {
         ctx.status(200);
@@ -178,12 +175,13 @@ public class SocialMediaController {
 
     /**
      * Handler to retrieve a specific message given its message_id
-     * Returns a JSON representation of the message if found, otherwise the response body is empty
      * 
      * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
+     * @apiNote Returns a JSON representation of the message if found, otherwise the response body is empty
      */
     private void retrieveMessageByIdHandler(Context ctx) {
         ctx.status(200);
+
         // converts the message_id path parameter into an integer, then searches for it using msgService's method
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message retrievedMessage = this.msgService.getMessageById(message_id);
@@ -192,6 +190,25 @@ public class SocialMediaController {
         if (retrievedMessage != null) {
             ctx.json(retrievedMessage);
         }
+    }
+
+    /**
+     * Handler to delete a specific message given its message_id
+     * 
+     * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
+     * @apiNote Returns a JSON representation of the deleted message within the response body on successful deletion from database
+     */
+    private void deleteMessageByIdHandler(Context ctx) {
+        ctx.status(200);
+        // converts the message_id path parameter into an integer, then searches for it using msgService's method
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message deletedMessage = this.msgService.deleteMessageById(message_id);
+
+        // returns the deleted message within response body as a JSON on successful deletion
+        if (deletedMessage != null) {
+            ctx.json(deletedMessage);
+        }
+
     }
 
 }

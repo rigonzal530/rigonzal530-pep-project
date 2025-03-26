@@ -112,6 +112,37 @@ public class MessageDAO {
     }
 
     /**
+     * Deletes a message from the Message table
+     * @param message_id - ID of message to be deleted
+     * @return true on successful deletion, otherwise false
+     */
+    public boolean deleteMessage(int message_id) {
+        // attempts to establish a connection with the database
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            // query to delete a particular message from the table
+            String delete = "DELETE FROM message WHERE message_id = ?";
+
+            // setting up a prepared statement
+            PreparedStatement ps = connection.prepareStatement(delete);
+            ps.setInt(1, message_id);
+
+            // executing the delete statement and returns true if that resulted in successful deletion
+            int rowsDeleted = ps.executeUpdate();
+            if (rowsDeleted > 0) {
+                return true;
+            }
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        // else the deletion failed, so return false
+        return false;
+    }
+
+    /**
      * Checks if a user is real and existing within the Account table by searching for their account ID.
      * (Though this deals with checking the account table, it is only needed for messages. so it resides in the Message DAO)
      * 

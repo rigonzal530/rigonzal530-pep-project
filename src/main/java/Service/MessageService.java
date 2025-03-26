@@ -50,4 +50,23 @@ public class MessageService {
     public Message getMessageById(int message_id) {
         return this.messageDAO.getMessageById(message_id);
     }
+
+    /**
+     * Deletes a single message from the Message table
+     * @param message_id - ID of message to be deleted
+     * @return Fully populated Message object containing the deleted message on success, otherwise returns null
+     */
+    public Message deleteMessageById(int message_id) {
+        // attempts to retrieve the message to be deleted before deleting it
+        Message deletedMessage = this.messageDAO.getMessageById(message_id);
+
+        // if a message was successfully retrieved, then attempt to delete it
+        if (deletedMessage != null && this.messageDAO.deleteMessage(message_id)) {
+            // if a message was both retrieved AND deleted successfully, return the deleted message
+            return deletedMessage;
+        }
+
+        // otherwise the message wasn't found or failed to be deleted
+        return null;
+    }
 }
