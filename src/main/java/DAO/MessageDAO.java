@@ -128,7 +128,7 @@ public class MessageDAO {
             PreparedStatement ps = connection.prepareStatement(delete);
             ps.setInt(1, message_id);
 
-            // executing the delete statement and returns true if that resulted in successful deletion
+            // executes the delete statement and returns true on successful deletion
             int rowsDeleted = ps.executeUpdate();
             if (rowsDeleted > 0) {
                 return true;
@@ -139,6 +139,39 @@ public class MessageDAO {
         }
 
         // else the deletion failed, so return false
+        return false;
+    }
+
+    /**
+     * Updates a message's text (identified by its message ID)
+     * @param message_id - ID of message to be updated
+     * @param updatedText - Updated text to replace message_text with
+     * @return True on successful update, otherwise false
+     */
+    public boolean updateMessage(int message_id, String updatedText) {
+        // attempts to establish a connection with the database
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            // query to update a particular message's message_text field
+            String update = "UPDATE message SET message_text = ? WHERE message_id = ?";
+
+            // setting up a prepared statement
+            PreparedStatement ps = connection.prepareStatement(update);
+            ps.setString(1, updatedText);
+            ps.setInt(2, message_id);
+
+            // executes the update statement and returns true on a successful update
+            int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated > 0) {
+                return true;
+            }
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        // otherwise the update failed, so return false
         return false;
     }
 

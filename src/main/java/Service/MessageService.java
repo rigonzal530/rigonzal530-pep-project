@@ -52,7 +52,7 @@ public class MessageService {
     }
 
     /**
-     * Deletes a single message from the Message table
+     * Deletes a single message from the Message table if it exists
      * @param message_id - ID of message to be deleted
      * @return Fully populated Message object containing the deleted message on success, otherwise returns null
      */
@@ -67,6 +67,36 @@ public class MessageService {
         }
 
         // otherwise the message wasn't found or failed to be deleted
+        return null;
+    }
+
+    /**
+     * Updates a single message with new message_text in the Message table if the all requirements are met
+     * 
+     * @param message_id - ID of message to be updated
+     * @param updatedText - updated text that message_text will be replaced with
+     * @return Fully populated Message object containing the updated message on success, otherwise returns null
+     * @apiNote updatedText must not be blank
+     * @apiNote updatedText must not exceed 255 characters
+     * @apiNote message_id must refer to an existing message within the database
+     */
+    public Message updateMessageById(int message_id, String updatedText) {
+        // checks that updatedText meets requirements before accessing the database
+        boolean messageTextRequirements = !updatedText.isBlank() && (updatedText.length() <= 255);
+        
+        if (messageTextRequirements) {
+            // retrieves the message to be updated if it exists
+            Message updatedMessage = this.messageDAO.getMessageById(message_id);
+
+            // if a message was successfully retrieved, then attempt updating it
+            if (updatedMessage != null && this.messageDAO.updateMessage(message_id, updatedText)) {
+                // updates the Message object's message_text field to match the database on successful update, then returns it
+                updatedMessage.setMessage_text(updatedText);
+                return updatedMessage;
+            }
+        }
+
+        // otherwise update requirements weren't met or the update failed
         return null;
     }
 }

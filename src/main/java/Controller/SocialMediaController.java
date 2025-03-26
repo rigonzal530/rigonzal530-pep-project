@@ -1,5 +1,6 @@
 package Controller;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -52,8 +53,8 @@ public class SocialMediaController {
         // done: DELETE endpoint "messages/{message_id}"
         app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
 
-        // TODO: PATCH endpoint "messages/{message_id}"
-        // app.patch("/messages/{message_id}", null);
+        // done: PATCH endpoint "messages/{message_id}"
+        app.patch("/messages/{message_id}", this::updateMessageByIdHandler);
 
         // TODO: GET endpoint "accounts/{account_id}/messages"
         // app.get("/accounts/{account_id}/messages", ctx -> ctx.json("GET messages for account by account ID endpoint"));
@@ -200,7 +201,7 @@ public class SocialMediaController {
      */
     private void deleteMessageByIdHandler(Context ctx) {
         ctx.status(200);
-        // converts the message_id path parameter into an integer, then searches for it using msgService's method
+        // converts the message_id path parameter into an integer, then attempts deleting it using msgService's method
         int message_id = Integer.parseInt(ctx.pathParam("message_id"));
         Message deletedMessage = this.msgService.deleteMessageById(message_id);
 
@@ -209,6 +210,33 @@ public class SocialMediaController {
             ctx.json(deletedMessage);
         }
 
+    }
+
+    /**
+     * Handler to update a specific message's message_text field given its message_id and updated text
+     * 
+     * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
+     * @throws JsonProcessingException thrown if there is an issue converting request body JSON into an object
+     * @apiNote Returns a JSON representation of the updated Message in response body on successful update within database
+     * @apiNote If the update failed for any reason, returns status code 400 (client error)
+     */
+    private void updateMessageByIdHandler(Context ctx) throws JsonProcessingException {
+        // converts the request body into a Message object using object mapper, then extracts only the updated text
+        ObjectMapper om = new ObjectMapper();
+        String updatedText = om.readValue(ctx.body(), Message.class).getMessage_text();
+
+        // converts the message_id path parameter into an integer, then attempts updating it
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message updatedMessage = this.msgService.updateMessageById(message_id, updatedText);
+
+        // returns the updatedMessage if the update was successful
+        if (updatedMessage != null) {
+            ctx.status(200);
+            ctx.json(updatedMessage);
+        }
+        else {
+            ctx.status(400);
+        }
     }
 
 }
