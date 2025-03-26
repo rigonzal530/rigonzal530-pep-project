@@ -16,12 +16,11 @@ public class MessageService {
     /**
      * Creates a new message within the Message table if all its requirements were met
      * 
-     * 1. message_text must not be blank
-     * 2. message_text must not exceed 255 characters
-     * 3. posted_by refers to a real, existing user
-     * 
      * @param msg - a Message object without its message_id to be created within the Message table
      * @return A fully populated Message object (message_id, posted_by, message_text, time_posted_epoch) on successful insertion, or null on requirements failure / insertion failure
+     * @apiNote message_text must not be blank
+     * @apiNote message_text must not exceed 255 characters
+     * @apiNote posted_by must refer to real, existing user
      */
     public Message createNewMessage(Message msg) {
         boolean newMessageRequirements = !(msg.getMessage_text().isBlank()) && (msg.getMessage_text().length() <= 255) && this.messageDAO.isValidUser(msg.getPosted_by());
@@ -40,6 +39,15 @@ public class MessageService {
      */
     public List<Message> getAllMessages() {
         return this.messageDAO.getAllMessages();
+    }
+
+    /**
+     * Retrieves all messages from a specific user that exist within the Message table
+     * @param account_id - ID of user account whose messages will be retrieved
+     * @return A list containing every message as its object equivalent
+     */
+    public List<Message> getAllMessagesByUser(int account_id) {
+        return this.messageDAO.getAllMessagesByUser(account_id);
     }
 
     /**
@@ -83,7 +91,7 @@ public class MessageService {
     public Message updateMessageById(int message_id, String updatedText) {
         // checks that updatedText meets requirements before accessing the database
         boolean messageTextRequirements = !updatedText.isBlank() && (updatedText.length() <= 255);
-        
+
         if (messageTextRequirements) {
             // retrieves the message to be updated if it exists
             Message updatedMessage = this.messageDAO.getMessageById(message_id);

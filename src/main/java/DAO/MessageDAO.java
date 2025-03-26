@@ -8,7 +8,6 @@ import Model.Message;
 import Util.ConnectionUtil;
 
 public class MessageDAO {
-
     /**
      * Retrieves all messages from the Message table
      * @return A list containing all messages from the Message table as fully populated Message objects
@@ -26,6 +25,41 @@ public class MessageDAO {
 
             // setting up a prepared statement. this could also be a regular statement since there aren't any parameters
             PreparedStatement ps = connection.prepareStatement(query);
+
+            // executing the query and processing the results
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                // creates a fully populated Message using column indices and adds it to the list
+                Message currMsg = new Message(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getLong(4));
+                messages.add(currMsg);
+            }
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return messages;
+    }
+
+    /**
+     * Retrieves all messages from a specific user within the Message table
+     * @param account_id - ID of user account whose messages will be retrieved 
+     * @return A list containing all messages from a specific user within the Message table as fully populated Message objects, or an empty list if none existed
+     */
+    public List<Message> getAllMessagesByUser(int account_id) {
+        // creates an empty list to store all messages
+        List<Message> messages = new ArrayList<>();
+
+        // attempts to establish a connection with the database
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            // the posted_by column refers to a user's account_id
+            String query = "SELECT * FROM message WHERE posted_by = ?";
+
+            // setting up a prepared statement
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, account_id);
 
             // executing the query and processing the results
             ResultSet rs = ps.executeQuery();

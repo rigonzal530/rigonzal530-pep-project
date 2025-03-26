@@ -6,10 +6,6 @@ import Model.Account;
 import Util.ConnectionUtil;
 
 public class AccountDAO {
-    // methods needed for project problems
-    // 1. insertUser, usernameAlreadyExists
-    // 2. getUserByLogin
-
     /**
      * Inserts a new user account in the Account table
      * @param acc - the Account object to be inserted (without an account_id)
@@ -85,7 +81,7 @@ public class AccountDAO {
      * @param username - the username to be checked
      * @return true if a matching username was found, false if it wasn't
      */
-    public boolean usernameAlreadyExists(String username) {
+    public boolean isExistingUsername(String username) {
         // defaults usernameExists to false before executing the query
         boolean usernameExists = false;
 

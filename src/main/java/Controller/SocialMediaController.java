@@ -1,15 +1,12 @@
 package Controller;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import Model.Account;
-import Model.Message;
-import Service.AccountService;
-import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+
+import Model.*;
+import Service.*;
 
 /**
  * You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -17,14 +14,14 @@ import io.javalin.http.Context;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 public class SocialMediaController {
-    AccountService accService;
-    MessageService msgService;
+    private AccountService accService;
+    private MessageService msgService;
 
+    // no args constructor to initialize service dependencies
     public SocialMediaController() {
         this.accService = new AccountService();
         this.msgService = new MessageService();
     }
-
 
     /**
      * In order for the test cases to work, you will need to write the endpoints in the startAPI() method, as the test
@@ -33,41 +30,17 @@ public class SocialMediaController {
      */
     public Javalin startAPI() {
         Javalin app = Javalin.create();
-        app.get("example-endpoint", this::exampleHandler);
 
-        // done: POST endpoint "register"
-        app.post("/register", this::registrationHandler);
-
-        // done: POST endpoint "login"
-        app.post("/login", this::loginHandler);
-
-        // done: POST endpoint "messages"
-        app.post("/messages", this::createMessageHandler);
-
-        // done: GET endpoint "messages"
-        app.get("/messages", this::retrieveAllMessagesHandler);
-
-        // done: GET endpoint "messages/{message_id}"
-        app.get("/messages/{message_id}", this::retrieveMessageByIdHandler);
-
-        // done: DELETE endpoint "messages/{message_id}"
-        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
-
-        // done: PATCH endpoint "messages/{message_id}"
-        app.patch("/messages/{message_id}", this::updateMessageByIdHandler);
-
-        // TODO: GET endpoint "accounts/{account_id}/messages"
-        // app.get("/accounts/{account_id}/messages", ctx -> ctx.json("GET messages for account by account ID endpoint"));
+        app.post("/register", this::registrationHandler);                                       // user story 1
+        app.post("/login", this::loginHandler);                                                 // user story 2
+        app.post("/messages", this::createMessageHandler);                                      // user story 3
+        app.get("/messages", this::retrieveAllMessagesHandler);                                 // user story 4
+        app.get("/messages/{message_id}", this::retrieveMessageByIdHandler);                    // user story 5
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);                   // user story 6
+        app.patch("/messages/{message_id}", this::updateMessageByIdHandler);                    // user story 7
+        app.get("/accounts/{account_id}/messages", this::retrieveAllMessagesByUserHandler);     // user story 8
 
         return app;
-    }
-
-    /**
-     * This is an example handler for an example endpoint.
-     * @param context The Javalin Context object manages information about both the HTTP request and response.
-     */
-    private void exampleHandler(Context context) {
-        context.json("sample text");
     }
 
     /**
@@ -131,7 +104,6 @@ public class SocialMediaController {
             ctx.json(verifiedUser);
         }
     }
-
 
     /**
      * Handler to attempt creating a new message.
@@ -239,4 +211,15 @@ public class SocialMediaController {
         }
     }
 
+    /**
+     * Handler to retrieve all messages by a specific user contained within the Message table.
+     * 
+     * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
+     * @apiNote Always returns a JSON representation of a list containing all messages by a specific user identified by their account_id, even if it's empty
+     */
+    private void retrieveAllMessagesByUserHandler(Context ctx) {
+        int account_id = Integer.parseInt(ctx.pathParam("account_id"));
+        ctx.status(200);
+        ctx.json(this.msgService.getAllMessagesByUser(account_id));
+    }
 }
