@@ -41,4 +41,13 @@ public class MessageService {
     public List<Message> getAllMessages() {
         return this.messageDAO.getAllMessages();
     }
+
+    /**
+     * Retrieves a single message from the Message table
+     * @param message_id - ID of the message to be retrieved
+     * @return Fully populated Message object if found, otherwise null
+     */
+    public Message getMessageById(int message_id) {
+        return this.messageDAO.getMessageById(message_id);
+    }
 }

@@ -27,7 +27,7 @@ public class MessageDAO {
             // setting up a prepared statement. this could also be a regular statement since there aren't any parameters
             PreparedStatement ps = connection.prepareStatement(query);
 
-            // executing the insert statement
+            // executing the query and processing the results
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 // creates a fully populated Message using column indices and adds it to the list
@@ -40,6 +40,37 @@ public class MessageDAO {
         }
 
         return messages;
+    }
+
+    /**
+     * Retrieves a message from the Message table by its ID
+     * @param message_id - ID of the message to be searched for
+     * @return A fully populated Message object if found, otherwise null
+     */
+    public Message getMessageById(int message_id) {
+        // attempts to establish a connection with the database
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+            // will either return 0 or 1 row since message_id is a primary key
+            String query = "SELECT * FROM message WHERE message_id = ?";
+
+            // setting up a prepared statement and its parameter
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, message_id);
+
+            // executing the query and processing the results
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                // returns a fully populated Message using column indices
+                return new Message(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getLong(4));
+            }
+        }
+        catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return null;
     }
 
     /**

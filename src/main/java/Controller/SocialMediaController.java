@@ -1,6 +1,5 @@
 package Controller;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -48,7 +47,7 @@ public class SocialMediaController {
         app.get("/messages", this::retrieveAllMessagesHandler);
 
         // TODO: GET endpoint "messages/{message_id}"
-        // app.get("/messages/{message_id}", ctx -> ctx.json("GET messages by message ID endpoint"));
+        app.get("/messages/{message_id}", this::retrieveMessageByIdHandler);
 
         // TODO: DELETE endpoint "messages/{message_id}"
         // app.delete("/messages/{message_id}", null);
@@ -175,6 +174,24 @@ public class SocialMediaController {
     private void retrieveAllMessagesHandler(Context ctx) {
         ctx.status(200);
         ctx.json(this.msgService.getAllMessages());
+    }
+
+    /**
+     * Handler to retrieve a specific message given its message_id
+     * Returns a JSON representation of the message if found, otherwise the response body is empty
+     * 
+     * @param ctx - automatically provided by Javalin to handle HTTP requests and create HTTP responses
+     */
+    private void retrieveMessageByIdHandler(Context ctx) {
+        ctx.status(200);
+        // converts the message_id path parameter into an integer, then searches for it using msgService's method
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        Message retrievedMessage = this.msgService.getMessageById(message_id);
+
+        // returns the retrieved message in response body as a JSON if it was found
+        if (retrievedMessage != null) {
+            ctx.json(retrievedMessage);
+        }
     }
 
 }
